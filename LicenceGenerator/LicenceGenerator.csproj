@@ -5,4 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Licence.Core\Licence.Core.csproj" />
+    <ProjectReference Include="..\Licence.Client\Licence.Client.csproj" />
+  </ItemGroup>
 </Project>

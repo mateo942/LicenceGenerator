@@ -3,6 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenceGenerator", "LicenceGenerator\LicenceGenerator.csproj", "{F12DC397-168E-494E-8669-180BE6FB899B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Licence.Core", "Licence.Core\Licence.Core.csproj", "{F17166B7-1F1D-4BD0-9292-7FE11082AB49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Licence.Abstraction", "Licence.Abstraction\Licence.Abstraction.csproj", "{8F3AECCF-19B8-45DA-B64E-333D3C21D044}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Licence.Client", "Licence.Client\Licence.Client.csproj", "{0F22C8D6-0774-4046-BFF3-703915B99D04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,5 +19,17 @@ Global
 		{F12DC397-168E-494E-8669-180BE6FB899B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F12DC397-168E-494E-8669-180BE6FB899B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F12DC397-168E-494E-8669-180BE6FB899B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F17166B7-1F1D-4BD0-9292-7FE11082AB49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F17166B7-1F1D-4BD0-9292-7FE11082AB49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F17166B7-1F1D-4BD0-9292-7FE11082AB49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F17166B7-1F1D-4BD0-9292-7FE11082AB49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F3AECCF-19B8-45DA-B64E-333D3C21D044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F3AECCF-19B8-45DA-B64E-333D3C21D044}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F3AECCF-19B8-45DA-B64E-333D3C21D044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F3AECCF-19B8-45DA-B64E-333D3C21D044}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F22C8D6-0774-4046-BFF3-703915B99D04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F22C8D6-0774-4046-BFF3-703915B99D04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F22C8D6-0774-4046-BFF3-703915B99D04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F22C8D6-0774-4046-BFF3-703915B99D04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
