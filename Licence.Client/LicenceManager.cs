@@ -2,12 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Licence.Abstraction.Handler;
+using Licence.Abstraction.Manager;
 using Licence.Abstraction.Model;
 using Licence.Abstraction.Service;
 
 namespace Licence.Client
 {
-    public class LicenceManager
+    public class LicenceManager : ILicenceManager
     {
         private readonly ILicenceHandler _licenceHandler;
         private readonly ILicenceManagerService _licenceManagerService;

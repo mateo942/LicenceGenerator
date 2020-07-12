@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Licence.Abstraction.Manager;
 using Licence.Abstraction.Repository;
 using Licence.Abstraction.Service;
 using Licence.Client;
@@ -42,7 +43,7 @@ namespace LicenceGenerator
             await licenceMangerService.SavePublicKey(licence.PublicKey);
             await licenceMangerService.SaveLicence(licence.Licence);
 
-            var manager = new LicenceManager<Feature>( new LicenceHandler(), licenceMangerService);
+            ILicenceManager manager = new LicenceManager<Feature>( new LicenceHandler(), licenceMangerService);
             manager.AddParser("maxApiUsers", (value, data) =>
             {
                 data.MaxApiUsers = Convert.ToInt32(value);

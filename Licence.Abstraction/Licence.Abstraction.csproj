@@ -9,5 +9,6 @@
     <Folder Include="Model\" />
     <Folder Include="Handler\" />
     <Folder Include="Service\" />
+    <Folder Include="Manager\" />
   </ItemGroup>
 </Project>

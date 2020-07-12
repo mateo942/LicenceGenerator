@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Licence.Abstraction.Handler;
+using Licence.Abstraction.Manager;
 using Licence.Abstraction.Service;
 
 namespace Licence.Client
 {
-    public class LicenceManager<TData> : LicenceManager where TData : new()
+    public class LicenceManager<TData> : LicenceManager, ILicenceManager<TData> where TData : new()
     {
         public TData Data { get; private set; }
 
@@ -19,7 +20,7 @@ namespace Licence.Client
             _parsers = new List<KeyValuePair<string, Action<string, TData>>>();
         }
 
-        public LicenceManager<TData> AddParser(string key, Action<string, TData> action)
+        public ILicenceManager<TData> AddParser(string key, Action<string, TData> action)
         {
             _parsers.Add(new KeyValuePair<string, Action<string, TData>>(key, action));
 
