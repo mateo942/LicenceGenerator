@@ -1,0 +1,17 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenceGenerator", "LicenceGenerator\LicenceGenerator.csproj", "{F12DC397-168E-494E-8669-180BE6FB899B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F12DC397-168E-494E-8669-180BE6FB899B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F12DC397-168E-494E-8669-180BE6FB899B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F12DC397-168E-494E-8669-180BE6FB899B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F12DC397-168E-494E-8669-180BE6FB899B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
