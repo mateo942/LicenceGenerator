@@ -12,6 +12,7 @@ namespace Licence.Abstraction.Manager
 
     public interface ILicenceManager<TData> : ILicenceManager
     {
+        TData Data { get; }
         ILicenceManager<TData> AddParser(string key, Action<string, TData> action);
     }
 }
