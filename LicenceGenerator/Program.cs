@@ -24,7 +24,6 @@ namespace LicenceGenerator
             ILicenceHandler licenceHandler = new LicenceHandler(deviceInfoService);
             ILicenceManagerService licenceMangerService = new InMemoryWithRequestLicenceManagerService(deviceInfoService);
 
-
             var licenceService = new LicenceService(licenceRepository, licenceHandler);
             var licence = licenceService.Create(new Licence.Core.Models.LicenceData()
             {
@@ -69,7 +68,14 @@ namespace LicenceGenerator
             var result = await manager.Valid();
             Console.WriteLine("Licence is valid: {0}", result);
 
+            if(manager is ILicenceManagerTimer licenceManagerTimer)
+            {
+                licenceManagerTimer.SetCheckLicenceInterval(TimeSpan.FromMinutes(15));
+            }
+
             Console.ReadKey(true);
+
+            
         }
     }
 }

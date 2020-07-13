@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using Licence.Abstraction.Handler;
 using Licence.Abstraction.Manager;
 using Licence.Abstraction.Model;
@@ -9,10 +10,12 @@ using Licence.Client.Model;
 
 namespace Licence.Client
 {
-    public class LicenceManager : ILicenceManager
+    public class LicenceManager : ILicenceManager, ILicenceManagerTimer, IDisposable
     {
         private readonly ILicenceHandler _licenceHandler;
         private readonly ILicenceManagerService _licenceManagerService;
+
+        private Timer _timer;
 
         private string publicKey;
         private string data;
@@ -101,6 +104,25 @@ namespace Licence.Client
             cfg.Invoke(configuration);
 
             Configuration = configuration;
+        }
+
+        public void SetCheckLicenceInterval(TimeSpan timeSpan)
+        {
+            _timer = new Timer(timeSpan.TotalMilliseconds);
+            _timer.Elapsed += async (sender, e) =>
+            {
+                await Valid();
+            };
+            _timer.Start();
+        }
+
+        public void Dispose()
+        {
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer.Dispose();
+            }
         }
     }
 }

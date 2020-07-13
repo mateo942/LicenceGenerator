@@ -18,4 +18,9 @@ namespace Licence.Abstraction.Manager
         TData Data { get; }
         ILicenceManager<TData> AddParser(string key, Action<string, TData> action);
     }
+
+    public interface ILicenceManagerTimer : IDisposable
+    {
+        void SetCheckLicenceInterval(TimeSpan timeSpan);
+    }
 }
