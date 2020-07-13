@@ -8,6 +8,9 @@ namespace Licence.Abstraction.Manager
         string GetInfo(string name);
         bool IsActiveModule(string moduleName);
         Task<bool> Valid();
+
+        ILicenceManagerConfiguration Configuration { get; }
+        void SetConfiguration(Action<ILicenceManagerConfiguration> cfg);
     }
 
     public interface ILicenceManager<TData> : ILicenceManager

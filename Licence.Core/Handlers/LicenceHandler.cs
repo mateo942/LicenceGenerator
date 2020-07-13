@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using DeviceId;
 using Licence.Abstraction.Handler;
 using Licence.Abstraction.Model;
+using Licence.Abstraction.Service;
 using NSec.Cryptography;
 
 namespace Licence.Core.Handlers
@@ -17,8 +17,11 @@ namespace Licence.Core.Handlers
         private readonly KeyBlobFormat _privateKeyFormat = KeyBlobFormat.PkixPrivateKeyText;
         private readonly KeyBlobFormat _publicKeyFormat = KeyBlobFormat.PkixPublicKeyText;
 
-        public LicenceHandler()
+        private readonly IDeviceInfoService _deviceInfoService;
+
+        public LicenceHandler(IDeviceInfoService deviceInfoService)
         {
+            _deviceInfoService = deviceInfoService;
             _algorithm = SignatureAlgorithm.Ed25519;
         }
 
@@ -41,7 +44,6 @@ namespace Licence.Core.Handlers
 
             result.PrivateKey = Convert.ToBase64String(key.Export(_privateKeyFormat), Base64FormattingOptions.InsertLineBreaks);
             result.PublicKey = Convert.ToBase64String(key.Export(_publicKeyFormat), Base64FormattingOptions.InsertLineBreaks);
-
 
             StringBuilder licenceResult = new StringBuilder();
             licenceResult.AppendLine(SIGNATURE);
@@ -85,9 +87,7 @@ namespace Licence.Core.Handlers
 
         public bool Valid(string publicKey, string data, out ILicenceData licenceData)
         {
-            string deviceId = new DeviceIdBuilder()
-                    .AddSystemDriveSerialNumber()
-                    .ToString();
+            var deviceId = _deviceInfoService.GetId();
 
             return Valid(deviceId, publicKey, data, out licenceData);
         }

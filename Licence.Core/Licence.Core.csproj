@@ -13,6 +13,7 @@
     <Folder Include="Handlers\" />
     <Folder Include="Repository\" />
     <Folder Include="Service\" />
+    <Folder Include="Setting\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Licence.Abstraction\Licence.Abstraction.csproj" />

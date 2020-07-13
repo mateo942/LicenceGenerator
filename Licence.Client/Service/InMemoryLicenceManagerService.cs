@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Licence.Abstraction.Service;
 
@@ -19,6 +20,11 @@ namespace Licence.Client.Service
         public Task<string> GetPublicKey()
         {
             return Task.FromResult(_publicKey);
+        }
+
+        public virtual Task RequestLicence(IEnumerable<string> modules, IEnumerable<string> aditionalInfos)
+        {
+            throw new NotImplementedException();
         }
 
         public Task SaveLicence(string licence)

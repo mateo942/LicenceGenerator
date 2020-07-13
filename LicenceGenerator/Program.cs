@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Licence.Abstraction.Handler;
 using Licence.Abstraction.Manager;
 using Licence.Abstraction.Repository;
 using Licence.Abstraction.Service;
@@ -18,10 +19,16 @@ namespace LicenceGenerator
         {
             Console.WriteLine("Hello World!");
 
-            var licenceService = new LicenceService(new LicenceInMemoryRepository(), new LicenceHandler());
+            ILicenceRepository licenceRepository = new LicenceInMemoryRepository();
+            IDeviceInfoService deviceInfoService = new DeviceInfoService();
+            ILicenceHandler licenceHandler = new LicenceHandler(deviceInfoService);
+            ILicenceManagerService licenceMangerService = new InMemoryWithRequestLicenceManagerService(deviceInfoService);
+
+
+            var licenceService = new LicenceService(licenceRepository, licenceHandler);
             var licence = licenceService.Create(new Licence.Core.Models.LicenceData()
             {
-                DeviceId = "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU",
+                DeviceId = "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFUa",
                 CreatedAtUtc = DateTime.UtcNow,
                 ExpiredAt = DateTime.UtcNow.AddDays(14),
                 ProjectName = "B2B",
@@ -39,11 +46,18 @@ namespace LicenceGenerator
                 }
             });
 
-            ILicenceManagerService licenceMangerService = new InMemoryLicenceManagerService();
             await licenceMangerService.SavePublicKey(licence.PublicKey);
             await licenceMangerService.SaveLicence(licence.Licence);
 
-            ILicenceManager manager = new LicenceManager<Feature>( new LicenceHandler(), licenceMangerService);
+            ILicenceManager<Feature> manager = new LicenceManager<Feature>(licenceHandler, licenceMangerService);
+            manager.SetConfiguration(cfg =>
+            {
+                cfg.ApplicationName = "B2B";
+                cfg.Version = "1.0.0.1";
+                cfg.Modules = new string[] { "Core", "Discount", "Products", "Contractor" };
+                cfg.AdditionalInfos = new string[] { "maxApiUsers", "maxUsers" };
+            });
+
             manager.AddParser("maxApiUsers", (value, data) =>
             {
                 data.MaxApiUsers = Convert.ToInt32(value);

@@ -5,6 +5,7 @@ using Licence.Abstraction.Handler;
 using Licence.Abstraction.Manager;
 using Licence.Abstraction.Model;
 using Licence.Abstraction.Service;
+using Licence.Client.Model;
 
 namespace Licence.Client
 {
@@ -19,6 +20,7 @@ namespace Licence.Client
         private ILicenceData licenceData;
         private bool licenceIsValid;
 
+        public ILicenceManagerConfiguration Configuration { get; private set; }
 
         internal LicenceManager(ILicenceHandler licenceHandler, ILicenceManagerService licenceManagerService)
         {
@@ -51,9 +53,23 @@ namespace Licence.Client
                 return true;
             }
 
+            try
+            {
+                await SendRequestCore();
+            }
+            catch (NotImplementedException) { }
+            
+
             licenceData = null;
             licenceIsValid = false;
             return false;
+        }
+
+        protected async virtual Task SendRequestCore()
+        {
+            await _licenceManagerService.RequestLicence(
+                Configuration.Modules ?? Enumerable.Empty<string>(),
+                Configuration.AdditionalInfos ?? Enumerable.Empty<string>());
         }
 
         public bool IsActiveModule(string moduleName)
@@ -76,6 +92,15 @@ namespace Licence.Client
                 return licenceData.AditionalInfos[name];
 
             return null;
+        }
+
+        public void SetConfiguration(Action<ILicenceManagerConfiguration> cfg)
+        {
+            var configuration = new LicenceManagerConfiguration();
+
+            cfg.Invoke(configuration);
+
+            Configuration = configuration;
         }
     }
 }
