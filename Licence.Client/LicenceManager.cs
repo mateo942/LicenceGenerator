@@ -14,6 +14,7 @@ namespace Licence.Client
     {
         private readonly ILicenceHandler _licenceHandler;
         private readonly ILicenceManagerService _licenceManagerService;
+        private readonly IDeviceInfoService _deviceInfoService;
 
         private Timer _timer;
 
@@ -25,10 +26,12 @@ namespace Licence.Client
 
         public ILicenceManagerConfiguration Configuration { get; private set; }
 
-        internal LicenceManager(ILicenceHandler licenceHandler, ILicenceManagerService licenceManagerService)
+        internal LicenceManager(ILicenceHandler licenceHandler, ILicenceManagerService licenceManagerService,
+            IDeviceInfoService deviceInfoService)
         {
             _licenceHandler = licenceHandler;
             _licenceManagerService = licenceManagerService;
+            _deviceInfoService = deviceInfoService;
 
             _licenceManagerService.NotifiChanged += _licenceManagerService_NotifiChanged;
         }
@@ -47,10 +50,11 @@ namespace Licence.Client
         {
             publicKey = await _licenceManagerService.GetPublicKey();
             data = await _licenceManagerService.GetLicence();
+            var deviceId = _deviceInfoService.GetId();
 
-            if(_licenceHandler.Valid(publicKey, data, out var lic))
+            licenceData = _licenceHandler.Valid(deviceId, data, publicKey);
+            if(licenceData != null)
             {
-                licenceData = lic;
                 licenceIsValid = true;
                 await SuccessedValidation();
                 return true;

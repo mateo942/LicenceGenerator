@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
+
 namespace Licence.Abstraction.Handler
 {
     public interface ILicenceHandler
     {
-        Model.ILicenceResult Export(Model.ILicenceData licenceData);
-        bool Valid(string publicKey, string data, out Model.ILicenceData licence);
-        bool Valid(string deviceId, string publicKey, string data, out Model.ILicenceData licence);
+        Task<string> Export(Model.ILicenceData licenceData, Guid keyId);
+        Task<Model.ILicenceData> Valid(string deviceId, string data, Guid keyId);
+        Model.ILicenceData Valid(string deviceId, string data, string publicKey);
     }
 }

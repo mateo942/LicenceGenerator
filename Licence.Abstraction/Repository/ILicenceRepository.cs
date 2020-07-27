@@ -5,7 +5,7 @@ namespace Licence.Abstraction.Repository
 {
     public interface ILicenceRepository
     {
-        Task<Model.ILicenceData> Get(string deviceId);
-        Task<Model.ILicenceData> Add(Model.ILicenceData licenceData);
+        Task<Model.ILicenceEntity> Get(Guid id);
+        Task<Model.ILicenceEntity> Add(Model.ILicenceEntity licence);
     }
 }

@@ -14,8 +14,8 @@ namespace Licence.Client
 
         private IList<KeyValuePair<string, Action<string, TData>>> _parsers;
 
-        public LicenceManager(ILicenceHandler licenceHandler, ILicenceManagerService licenceManagerService)
-            : base(licenceHandler, licenceManagerService)
+        public LicenceManager(ILicenceHandler licenceHandler, ILicenceManagerService licenceManagerService, IDeviceInfoService deviceInfoService)
+            : base(licenceHandler, licenceManagerService, deviceInfoService)
         {
             _parsers = new List<KeyValuePair<string, Action<string, TData>>>();
         }

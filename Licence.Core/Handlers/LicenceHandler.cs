@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Text;
+using System.Threading.Tasks;
 using Licence.Abstraction.Handler;
 using Licence.Abstraction.Model;
+using Licence.Abstraction.Repository;
 using Licence.Abstraction.Service;
 using NSec.Cryptography;
 
@@ -13,86 +15,87 @@ namespace Licence.Core.Handlers
         const string LICENCE = "---Licence---";
         const string END = "---End---";
 
-        private readonly SignatureAlgorithm _algorithm;
-        private readonly KeyBlobFormat _privateKeyFormat = KeyBlobFormat.PkixPrivateKeyText;
-        private readonly KeyBlobFormat _publicKeyFormat = KeyBlobFormat.PkixPublicKeyText;
+        private readonly ISignatureService _signatureService;
+        private readonly IKeyRepository _keyRepository;
 
-        private readonly IDeviceInfoService _deviceInfoService;
-
-        public LicenceHandler(IDeviceInfoService deviceInfoService)
+        public LicenceHandler(ISignatureService signatureService, IKeyRepository keyRepository)
         {
-            _deviceInfoService = deviceInfoService;
-            _algorithm = SignatureAlgorithm.Ed25519;
+            _signatureService = signatureService;
+            _keyRepository = keyRepository;
         }
 
-        public ILicenceResult Export(ILicenceData licenceData)
+        public async Task<string> Export(ILicenceData licenceData, Guid keyId)
         {
             if (licenceData is null)
             {
                 throw new ArgumentNullException(nameof(licenceData));
             }
 
-            var licence = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(licenceData);
+            if(keyId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(keyId));
+            }
 
-            var param = new KeyCreationParameters();
-            param.ExportPolicy = KeyExportPolicies.AllowPlaintextExport;
-            var key = Key.Create(_algorithm, param);
+            var key = await _keyRepository.Get(keyId);
 
-            var signature = _algorithm.Sign(key, licence);
+            var licence = System.Text.Json.JsonSerializer.Serialize(licenceData);
 
-            var result = new Models.LicenceResult();
-
-            result.PrivateKey = Convert.ToBase64String(key.Export(_privateKeyFormat), Base64FormattingOptions.InsertLineBreaks);
-            result.PublicKey = Convert.ToBase64String(key.Export(_publicKeyFormat), Base64FormattingOptions.InsertLineBreaks);
+            var signature = _signatureService.Export(licence, key.PrivateKey);
 
             StringBuilder licenceResult = new StringBuilder();
             licenceResult.AppendLine(SIGNATURE);
-            licenceResult.AppendLine(Convert.ToBase64String(signature, Base64FormattingOptions.InsertLineBreaks));
+            licenceResult.AppendLine(signature);
             licenceResult.AppendLine(LICENCE);
-            licenceResult.AppendLine(Convert.ToBase64String(licence, Base64FormattingOptions.InsertLineBreaks));
+            licenceResult.AppendLine(licence);
             licenceResult.AppendLine(END);
 
-            result.Licence = licenceResult.ToString();
-
-            return result;
+            return licenceResult.ToString();
         }
 
-        public bool Valid(string deviceId, string publicKey, string data, out ILicenceData licenceData)
-        {
-            if (publicKey is null)
-            {
-                throw new ArgumentNullException(nameof(publicKey));
-            }
 
+        public async Task<ILicenceData> Valid(string deviceId, string data, Guid keyId)
+        {
             if (string.IsNullOrEmpty(data))
             {
                 throw new ArgumentException("licence data is null or empty", nameof(data));
             }
 
-            var readData = ReadData(data);
-
-            PublicKey key = PublicKey.Import(_algorithm, Convert.FromBase64String(publicKey), _publicKeyFormat);
-
-            if (_algorithm.Verify(key, readData.Item2, readData.Item1))
+            if (keyId == Guid.Empty)
             {
-                licenceData = System.Text.Json.JsonSerializer.Deserialize<Models.LicenceData>(readData.Item2);
-
-                if (licenceData.ExpiredAt >= DateTime.UtcNow && licenceData.DeviceId == deviceId)
-                    return true;
+                throw new ArgumentNullException(nameof(keyId));
             }
 
-            licenceData = null;
-            return false;
+            var key = await _keyRepository.Get(keyId);
+
+            return Valid(deviceId, data, key.PublicKey);
         }
 
-        public bool Valid(string publicKey, string data, out ILicenceData licenceData)
+        public ILicenceData Valid(string deviceId, string data, string publicKey)
         {
-            var deviceId = _deviceInfoService.GetId();
+            if (string.IsNullOrEmpty(data))
+            {
+                throw new ArgumentException("licence data is null or empty", nameof(data));
+            }
 
-            return Valid(deviceId, publicKey, data, out licenceData);
+            if (string.IsNullOrEmpty(publicKey))
+            {
+                throw new ArgumentException("public key is null or empty", nameof(publicKey));
+            }
+
+            var readData = ReadData(data);
+
+            if (_signatureService.Valid(readData.Item2, readData.Item1, publicKey))
+            {
+                ILicenceData licenceData = System.Text.Json.JsonSerializer.Deserialize<Models.LicenceData>(readData.Item2);
+
+                if (licenceData.ExpiredAt >= DateTime.UtcNow && licenceData.DeviceId == deviceId)
+                    return licenceData;
+            }
+
+            return null;
         }
 
-        private Tuple<byte[], byte[]> ReadData(string data)
+        private Tuple<string, string> ReadData(string data)
         {
             string[] lines = data.Split("\n");
 
@@ -126,10 +129,7 @@ namespace Licence.Core.Handlers
             }
 
 
-            return new Tuple<byte[], byte[]>(
-                Convert.FromBase64String(signature.ToString()),
-                Convert.FromBase64String(licence.ToString())
-            );
+            return new Tuple<string, string>(signature.ToString(), licence.ToString());
         }
 
         private bool TryGetCurrentSegment(string value, ref string currentSegment)

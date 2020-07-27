@@ -8,26 +8,26 @@ namespace Licence.Core.Repository
 {
     public class LicenceInMemoryRepository : ILicenceRepository
     {
-        private static readonly ISet<ILicenceData> _licences = new HashSet<ILicenceData>();
+        private static readonly ISet<ILicenceEntity> _licences = new HashSet<ILicenceEntity>();
 
         public LicenceInMemoryRepository()
         {
         }
 
-        public Task<ILicenceData> Add(ILicenceData licenceData)
+        public Task<ILicenceEntity> Add(ILicenceEntity licenceData)
         {
-            if (licenceData.Key.Equals(Guid.Empty))
-                licenceData.Key = Guid.NewGuid();
+            if (licenceData.Id == Guid.Empty)
+                licenceData.Id = Guid.NewGuid();
 
             _licences.Add(licenceData);
 
             return Task.FromResult(licenceData);
         }
 
-        public Task<ILicenceData> Get(string deviceId)
+        public Task<ILicenceEntity> Get(Guid id)
         {
             var licence = _licences
-                .FirstOrDefault(x => x.DeviceId == deviceId);
+                .SingleOrDefault(x => x.Id == id);
 
             if (licence == null)
                 throw new KeyNotFoundException();

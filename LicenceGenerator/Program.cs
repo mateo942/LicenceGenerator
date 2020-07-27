@@ -22,31 +22,31 @@ namespace LicenceGenerator
         {
             Console.WriteLine("Hello World!");
 
+            IKeyRepository keyRepository = new KeyInMemoryRepository();
             ILicenceRepository licenceRepository = new LicenceInMemoryRepository();
             IDeviceInfoService deviceInfoService = new DeviceInfoService();
-            ILicenceHandler licenceHandler = new LicenceHandler(deviceInfoService);
-            ILicenceManagerService licenceMangerService = new InMemoryWithRequestLicenceManagerService(deviceInfoService);
             IEncryptionService encryptionService = new EncryptionService(EncryptionSettings.Default);
+            ISignatureService signatureService = new SignatureService(SignatureSettings.Default);
+
+            //Generate signarure keys
+            var signatureKeyTmp = signatureService.GenerateKey();
+            var signatureKey = await keyRepository.Add(new KeyEntity
+            {
+                PrivateKey = signatureKeyTmp.Item1,
+                PublicKey = signatureKeyTmp.Item2
+            });
+
+            ILicenceHandler licenceHandler = new LicenceHandler(signatureService, keyRepository);
+            ILicenceManagerService licenceMangerService = new InMemoryWithRequestLicenceManagerService(deviceInfoService);
 
             var symetricKey = encryptionService.GenerateKey();
             encryptionService = new EncryptionService(
                 new EncryptionSettings(null, symetricKey));
 
-            for (int i = 0; i < 10; i++)
-            {
-                var message = "Ala ma kota";
-                var d = encryptionService.Encrypt(message);
-                var a = encryptionService.Decrypt(d);
-
-                Console.WriteLine("Message: {0}, Encrypt: {1}, Decrypt: {2}, Is same: {3}", message, d, a, message == a);
-            }
-
-            
-
             var licenceService = new LicenceService(licenceRepository, licenceHandler);
-            var licence = licenceService.Create(new Licence.Core.Models.LicenceData()
+            var licence = await licenceService.Create(signatureKey.Id, new Licence.Core.Models.LicenceData()
             {
-                DeviceId = "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFUa",
+                DeviceId = "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU",
                 CreatedAtUtc = DateTime.UtcNow,
                 ExpiredAt = DateTime.UtcNow.AddDays(14),
                 ProjectName = "B2B",
@@ -64,10 +64,10 @@ namespace LicenceGenerator
                 }
             });
 
-            await licenceMangerService.SavePublicKey(licence.PublicKey);
-            await licenceMangerService.SaveLicence(licence.Licence);
+            await licenceMangerService.SavePublicKey(signatureKey.PublicKey);
+            await licenceMangerService.SaveLicence(licence.LicenceString);
 
-            ILicenceManager<Feature> manager = new LicenceManager<Feature>(licenceHandler, licenceMangerService);
+            ILicenceManager<Feature> manager = new LicenceManager<Feature>(licenceHandler, licenceMangerService, deviceInfoService);
             manager.SetConfiguration(cfg =>
             {
                 cfg.ApplicationName = "B2B";
