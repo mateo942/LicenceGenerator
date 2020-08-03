@@ -97,7 +97,10 @@ namespace Licence.Core.Handlers
 
         private Tuple<string, string> ReadData(string data)
         {
-            string[] lines = data.Split("\n");
+            string[] lines  = data.Split(
+                    new[] { Environment.NewLine },
+                    StringSplitOptions.None
+                );
 
             StringBuilder signature = new StringBuilder();
             StringBuilder licence = new StringBuilder();
